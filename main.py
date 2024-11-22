@@ -1,3 +1,5 @@
+from src.functions.chain import create_chain_rag
+from src.functions.ui import add_message, clear_messages, print_messages
 import streamlit as st
 from langchain_core.messages.chat import ChatMessage
 from langchain_core.prompts import ChatPromptTemplate
@@ -12,20 +14,18 @@ import os
 # API KEY 정보로드
 load_dotenv()
 
+# 로깅
 langsmith("KM_AD_CHATBOT")
+
+# 세션 스테이트 초기화
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
 
 st.title("카카오모빌리티 광고상품 챗봇 💬")
 openai_api_key = st.secrets["OPENAI_API_KEY"]
 
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
-
 
 # 사이드바 생성
-def clear_messages():
-    st.session_state["messages"] = []
-
-
 with st.sidebar:
     # 초기화 버튼
     clear_btn = st.button("대화 초기화")
@@ -34,51 +34,32 @@ with st.sidebar:
         clear_messages()
 
 
-def create_chain():
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", "당신은 친절한 AI 어시스턴트입니다."),
-            ("user", "#Question:/n{question}"),
-        ]
-    )
-
-    llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
-
-    output_parser = StrOutputParser()
-
-    chain = prompt | llm | output_parser
-    return chain
-
-
-def print_messages():
-    for chat_message in st.session_state["messages"]:
-        st.chat_message(chat_message.role).write(chat_message.content)
-
-
-def add_meesage(role, message):
-    st.session_state["messages"].append(ChatMessage(role=role, content=message))
-
-
-# 이전 대화 출령
+# 이전 대화 출력
 print_messages()
 
 # 유저 인풋
 user_input = st.chat_input("궁금한 내용을 물어보세요!")
 
+# 경고 메시지를 띄우기 위한 빈 영역
+warning_msg = st.empty()
+
+chain = create_chain_rag()
+
 # 유저 인풋 처리
 if user_input:
+    # 사용자의 입력
     st.chat_message("user").write(user_input)
-
-    chain = create_chain()
-    ai_answer = chain.stream({"question": user_input})
+    # 스트리밍 호출
+    response = chain.stream(user_input)
     with st.chat_message("assistant"):
-        # 컨테이너를 만들어서 스트리밍 출력
+        # 빈 공간(컨테이너)을 만들어서, 여기에 토큰을 스트리밍 출력한다.
         container = st.empty()
 
-        ai_messages = ""
-        for token in ai_answer:
-            ai_messages += token
-            container.markdown(ai_messages)
+        ai_answer = ""
+        for token in response:
+            ai_answer += token
+            container.markdown(ai_answer)
 
-    add_meesage("user", user_input)
-    add_meesage("assistant", user_input)
+    # 대화기록을 저장한다.
+    add_message("user", user_input)
+    add_message("assistant", ai_answer)
