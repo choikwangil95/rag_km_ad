@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rag-ad"
+version = "0.1.0"
+description = "카카오모빌리티 광고상품 챗봇"
+authors = ["brak.choi"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+streamlit = "^1.40.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+flake8 = "^7.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
