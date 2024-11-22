@@ -17,12 +17,12 @@ def get_retreiver():
     # 단계 1: 여러 파일 로드 및 분할 처리
     # 파일 경로 리스트
     file_paths = [
-        "src/assets/pdf/AD_CS.txt",
-        "src/assets/pdf/AD_DA.txt",
-        "src/assets/pdf/AD_ALL.txt",
-        "src/assets/pdf/AD_OOH.txt",
-        "src/assets/pdf/AD_RSE.txt",
-        "src/assets/pdf/BIZ_CENTER.txt",
+        "src/assets/txt/AD_CS.txt",
+        "src/assets/txt/AD_DA.txt",
+        "src/assets/txt/AD_ALL.txt",
+        "src/assets/txt/AD_OOH.txt",
+        "src/assets/txt/AD_RSE.txt",
+        "src/assets/txt/BIZ_CENTER.txt",
     ]
     all_split_documents = []
 
@@ -39,7 +39,7 @@ def get_retreiver():
 
         # 단계 2: 문서 분할
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000, chunk_overlap=100
+            chunk_size=3000, chunk_overlap=100
         )
         split_documents = text_splitter.split_documents([document])
 

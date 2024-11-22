@@ -1,3 +1,4 @@
+from src.functions.chain import create_chain_rag
 import streamlit as st
 from langchain_core.messages.chat import ChatMessage
 
@@ -13,3 +14,67 @@ def add_message(role, message):
 
 def clear_messages():
     st.session_state["messages"] = []
+
+
+def print_sidebar():
+    with st.sidebar:
+        # 초기화 버튼
+        clear_btn = st.button("대화 초기화")
+
+        st.subheader("질문 예시 목록", divider=True)
+        multi = """
+            - 카카오모빌리티 광고상품에 대해 설명해줘
+            - 예산 5,000만원으로 집행 가능한 광고지면을 추천해줘
+            - 카카오 T 유저를 대상으로 매력적인 광고를 추천해줘
+            - 300만 이상 노출 (1주일 기준) 이 가능한 광고를 추천해줘 
+            """
+        st.markdown(multi)
+
+        st.markdown(
+            """
+            <style>
+            .sticky-footer {
+                position: fixed;
+                bottom: 0;
+                color: white
+                text-align: center;
+                padding: 10px;
+                font-size: 16px;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # 고정된 텍스트를 하단에 표시
+        st.markdown(
+            '<a href="https://github.com/choikwangil95/rag_km_ad" class="sticky-footer"><img src="https://img.shields.io/badge/GitHub-000000?style=flat&logo=github"></a>',
+            unsafe_allow_html=True,
+        )
+
+        if clear_btn:
+            clear_messages()
+
+
+def print_user_input():
+    chain = create_chain_rag()
+
+    user_input = st.chat_input("궁금한 내용을 물어보세요!")
+
+    if user_input:
+        # 사용자의 입력
+        st.chat_message("user").write(user_input)
+        # 스트리밍 호출
+        response = chain.stream(user_input)
+        with st.chat_message("assistant"):
+            # 빈 공간(컨테이너)을 만들어서, 여기에 토큰을 스트리밍 출력한다.
+            container = st.empty()
+
+            ai_answer = ""
+            for token in response:
+                ai_answer += token
+                container.markdown(ai_answer)
+
+        # 대화기록을 저장한다.
+        add_message("user", user_input)
+        add_message("assistant", ai_answer)
