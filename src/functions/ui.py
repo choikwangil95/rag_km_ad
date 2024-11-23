@@ -18,17 +18,30 @@ def clear_messages():
 
 def print_sidebar():
     with st.sidebar:
-        # 초기화 버튼
-        clear_btn = st.button("대화 초기화")
+        st.header("카카오모빌리티 광고상품 챗봇")
+        st.markdown(
+            """
+            카카오 모빌리티와 광고 상품에 대한 정보를 제공하는 챗봇입니다.
+            """
+        )
 
-        st.subheader("질문 예시 목록", divider=True)
-        multi = """
+        st.subheader("질문 예시")
+        st.markdown(
+            """
+            - 카카오 T 앱에 대해 설명해줘
             - 카카오모빌리티 광고상품에 대해 설명해줘
             - 예산 5,000만원으로 집행 가능한 광고지면을 추천해줘
+            - 300만 이상 노출 (1주일 기준) 이 가능한 광고를 추천해줘
             - 카카오 T 유저를 대상으로 매력적인 광고를 추천해줘
-            - 300만 이상 노출 (1주일 기준) 이 가능한 광고를 추천해줘 
+            - 카카오 T 스플래시 광고에 대해 설명해줘
             """
-        st.markdown(multi)
+        )
+
+        st.subheader("설정")
+        # 초기화 버튼
+        clear_btn = st.button("대화 초기화")
+        if clear_btn:
+            clear_messages()
 
         st.markdown(
             """
@@ -51,9 +64,6 @@ def print_sidebar():
             '<a href="https://github.com/choikwangil95/rag_km_ad" class="sticky-footer"><img src="https://img.shields.io/badge/GitHub-000000?style=flat&logo=github"></a>',
             unsafe_allow_html=True,
         )
-
-        if clear_btn:
-            clear_messages()
 
 
 def print_user_input():
