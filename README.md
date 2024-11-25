@@ -38,10 +38,9 @@
 
 ## 🔍 RAG 프로세스
 Retrieval-Augmented Generation(RAG)는 기존의 언어 모델의 한계를 넘어서 정보 검색과 생성을 통합하는 방법론입니다.
+아래의 전처리 각 단계별로 적절히 엔지니어링하여 RAG의 성능 및 효율을 향상시킬 수 있습니다.
 
 ![image](https://github.com/user-attachments/assets/fc43049e-1320-4c31-8792-b538def8cc4d)
-
-위의 전처리 각 단계별로 적절히 엔지니어링하여 RAG의 성능 및 효율을 향상시킬 수 있습니다.
 
 ### 1. 도큐먼트 로드 (Document Loader)
 
