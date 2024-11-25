@@ -73,7 +73,9 @@ split_documents = text_splitter.split_documents([document])
 - chunk-size: 문서 분할 토큰 수
 - chunk-overlap: 분할된 문서 교집합 영역
 
-### 3. 임베딩 (Embedding)
+### 3. 임베딩 (Embedding), 벡터스토어(Vector Store) 저장
+
+각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 문서의 의미를 수치화합니다.
 
 ```python
 # 단계 3: 임베딩(Embedding) 생성
@@ -86,9 +88,9 @@ vectorstore = FAISS.from_documents(
 )
 ```
 
-각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 문서의 의미를 수치화합니다.
+### 4. 검색기(Retriever) 생성
 
-### 4. 벡터스토어(Vector Store) 저장
+임베딩된 벡터들을 데이터베이스에 저장합니다. 이는 요약된 키워드를 색인화하여 나중에 빠르게 찾을 수 있도록 하는 과정입니다.
 
 ```python
 # 단계 5: 검색기(Retriever) 생성: 문서에 포함되어 있는 정보를 검색하고 생성합니다.
@@ -102,11 +104,34 @@ llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
 retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
 ```
 
-임베딩된 벡터들을 데이터베이스에 저장합니다. 이는 요약된 키워드를 색인화하여 나중에 빠르게 찾을 수 있도록 하는 과정입니다.
-
 - k: 리턴할 검색 문서 수
 - fetch_k: 검색 문서 후보 수
 - MultiQueryRetriever: 사용자가 입력한 쿼리의 의미를 다각도로 포착 (입력: RSE, 변환: RSE에 대해 설명해주세요)
+
+![image](https://github.com/user-attachments/assets/16ff85c3-8abe-4880-ae6b-4ff34540c739)
+
+### 5. LLM 입력 호출 
+
+```python
+    # 단계 6: 프롬프트 생성(Create Prompt)
+    # 프롬프트를 생성합니다.
+    prompt = load_prompt("src/assets/prompts/rag.yaml", encoding="utf-8")
+
+    # 단계 7: 언어모델(LLM) 생성
+    # 모델(LLM) 을 생성합니다.
+    llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
+
+    # 단계 8: 체인(Chain) 생성
+    chain = (
+        {"context": retriever_from_llm, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    # 사용자의 입력을 받아 답변 스트리밍 호출
+    response = chain.stream("카카오모빌리티 광고상품에 대해 알려줘")
+```
 
 ## 👀 RAG 모니터링
 
