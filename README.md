@@ -96,11 +96,6 @@ vectorstore = FAISS.from_documents(
 retriever = vectorstore.as_retriever(
     search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20}
 )
-
-# 사용자가 입력한 쿼리의 의미를 다각도로 포착하여 검색 효율성을 높임
-# LLM을 활용하여 사용자에게 보다 관련성 높고 정확한 정보를 제공하는 것을 목표
-llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
-retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
 ```
 
 - k: 리턴할 검색 문서 수
@@ -122,7 +117,7 @@ retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
 
     # 단계 8: 체인(Chain) 생성
     chain = (
-        {"context": retriever_from_llm, "question": RunnablePassthrough()}
+        {"context": retriever, "question": RunnablePassthrough()}
         | prompt
         | llm
         | StrOutputParser()
