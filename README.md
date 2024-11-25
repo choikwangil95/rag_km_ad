@@ -176,10 +176,10 @@ brew install poetry
 ```bash
 .streamlit/secret.toml
 
-OPENAI_API_KEY="<YOUR_API_KEY>"
+OPENAI_API_KEY="<YOUR_API_KEY>" // https://platform.openai.com/
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-LANGCHAIN_API_KEY="<YOUR_API_KEY>"
+LANGCHAIN_API_KEY="<YOUR_API_KEY>" // https://smith.langchain.com/
 LANGCHAIN_PROJECT="<YOUR_PROJECT_NAME>"
 ```
 
