@@ -100,7 +100,6 @@ retriever = vectorstore.as_retriever(
 
 - k: 리턴할 검색 문서 수
 - fetch_k: 검색 문서 후보 수
-- MultiQueryRetriever: 사용자가 입력한 쿼리의 의미를 다각도로 포착 (입력: RSE, 변환: RSE에 대해 설명해주세요)
 
 ![image](https://github.com/user-attachments/assets/16ff85c3-8abe-4880-ae6b-4ff34540c739)
 
