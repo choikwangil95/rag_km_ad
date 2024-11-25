@@ -2,6 +2,14 @@
 
 카카오모빌리티 광고상품에 대한 정보를 제공하는 챗봇입니다. [서비스 링크](https://km-ad-chatbot.streamlit.app/)
 
+![rag-graphic-2 (1)](https://github.com/user-attachments/assets/eab523bf-a423-4358-a65e-8789eb3c3ec0)
+
+## 📑 목차
+- [1 📋 프로젝트 개요](#-프로젝트-개요)
+- [2 🛠 기술 스택](#-기술-스택)
+- [3 🔍 RAG 프로세스](#-rag-프로세스)
+- [4 🚀 시작하기](#-시작하기)
+
 ## 📋 프로젝트 개요
 
 ### 문제정의
@@ -13,10 +21,6 @@
 - **광고상품 설명**: 카카오모빌리티 광고상품에 대한 정보 제공 및 질문 응답
 - **광고상품 추천**: 사용자의 광고 요구사항에 따른 맞춤형 광고상품 추천
 
-### RAG 활용 데이터
-
-- 카카오모빌리티 광고상품 데이터: [https://www.kakaomobility.com/ads](https://www.kakaomobility.com/ads)
-
 ### 인사이트
 - 광고 노출 데이터를 활용하면 광고상품 추천 고도화가 가능할 것 같다.
 - 챗봇 I/O 로깅 데이터를 통해 광고주 요구사항 파악이 용이할 것 같다.
@@ -27,6 +31,82 @@
 - **LangSmith**: LLM 입력/출력 로깅
 ### WebApp
 - **Streamlit**: 웹 애플리케이션 프레임워크
+
+### 활용 데이터
+- 카카오모빌리티 광고상품 데이터: [https://www.kakaomobility.com/ads](https://www.kakaomobility.com/ads)
+
+## 🔍 RAG 프로세스
+Retrieval-Augmented Generation(RAG)는 기존의 언어 모델의 한계를 넘어서 정보 검색과 생성을 통합하는 방법론입니다.
+
+![image](https://github.com/user-attachments/assets/fc43049e-1320-4c31-8792-b538def8cc4d)
+
+위의 전처리 각 단계별로 적절히 엔지니어링하여 RAG의 성능 및 효율을 향상시킬 수 있습니다.
+
+### 1. 도큐먼트 로드 (Document Loader)
+
+외부 데이터 소스에서 필요한 문서를 로드하고 초기 처리를 합니다.
+
+```python
+# 단계 1: 문서 로드
+
+# 텍스트 로더 생성
+loader = TextLoader(file_path)
+
+# 문서 로드
+document = loader.load()
+```
+- 문서 확장자에 따라 토큰수 및 성능 달라짐 (pdf, image, txt, ...)
+### 2. 텍스트 분할 (Text Splitter)
+
+로드된 문서를 처리 가능한 작은 단위로 분할합니다. 큰 책을 챕터별로 나누는 것과 유사합니다.
+
+```python
+# 단계 2: 문서 분할
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=2000, chunk_overlap=100
+)
+
+split_documents = text_splitter.split_documents([document])
+```
+
+- chunk-size: 문서 분할 토큰 수
+- chunk-overlap: 분할된 문서 교집합 영역
+
+### 3. 임베딩 (Embedding)
+
+```python
+# 단계 3: 임베딩(Embedding) 생성
+embeddings = OpenAIEmbeddings()
+
+# 단계 4: DB 생성(Create DB) 및 저장
+# 벡터스토어를 생성합니다.
+vectorstore = FAISS.from_documents(
+    documents=all_split_documents, embedding=embeddings
+)
+```
+
+각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 문서의 의미를 수치화합니다.
+
+### 4. 벡터스토어(Vector Store) 저장
+
+```python
+# 단계 5: 검색기(Retriever) 생성: 문서에 포함되어 있는 정보를 검색하고 생성합니다.
+retriever = vectorstore.as_retriever(
+    search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20}
+)
+
+# 사용자가 입력한 쿼리의 의미를 다각도로 포착하여 검색 효율성을 높임
+# LLM을 활용하여 사용자에게 보다 관련성 높고 정확한 정보를 제공하는 것을 목표
+llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
+retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
+```
+
+임베딩된 벡터들을 데이터베이스에 저장합니다. 이는 요약된 키워드를 색인화하여 나중에 빠르게 찾을 수 있도록 하는 과정입니다.
+
+- k: 리턴할 검색 문서 수
+- fetch_k: 검색 문서 후보 수
+- MultiQueryRetriever: 사용자가 입력한 쿼리의 의미를 다각도로 포착 (입력: RSE, 변환: RSE에 대해 설명해주세요)
+
 
 ## 🚀 시작하기
 
