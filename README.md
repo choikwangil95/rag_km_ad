@@ -8,7 +8,8 @@
 - [1 📋 프로젝트 개요](#-프로젝트-개요)
 - [2 🛠 기술 스택](#-기술-스택)
 - [3 🔍 RAG 프로세스](#-rag-프로세스)
-- [4 🚀 시작하기](#-시작하기)
+- [4 🔍 RAG 모니터링](#-rag-모니터링)
+- [5 🚀 시작하기](#-시작하기)
 
 ## 📋 프로젝트 개요
 
@@ -106,6 +107,13 @@ retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
 - k: 리턴할 검색 문서 수
 - fetch_k: 검색 문서 후보 수
 - MultiQueryRetriever: 사용자가 입력한 쿼리의 의미를 다각도로 포착 (입력: RSE, 변환: RSE에 대해 설명해주세요)
+
+## 👀 RAG 모니터링
+
+<img width="1266" alt="스크린샷 2024-11-25 오후 3 42 13" src="https://github.com/user-attachments/assets/1bf46391-3bf8-4836-848b-33ae72055fc9">
+
+- RAG 프로세스 시퀀스가 어떻게 진행됬는지 확인 가능하며, 어디를 개선해야 할지 판단이 가능
+- 사용된 토큰 개수와 과금 정보 확인 가능
 
 
 ## 🚀 시작하기
