@@ -59,7 +59,8 @@ document = loader.load()
 
 ### 2. 텍스트 분할 (Text Splitter)
 
-로드된 문서를 처리 가능한 작은 단위로 분할합니다. 큰 책을 챕터별로 나누는 것과 유사합니다.
+LLM 모델에는 각각 입/출력 토큰수 제한이 존재함
+따라서, 로드된 문서를 처리 가능한 작은 단위로 분할합니다. 큰 책을 챕터별로 나누는 것과 유사합니다.
 
 ```python
 # 단계 2: 문서 분할
@@ -76,7 +77,7 @@ split_documents = text_splitter.split_documents([document])
 
 ### 3. 임베딩 (Embedding), 벡터스토어(Vector Store) 저장
 
-각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 문서의 의미를 수치화합니다.
+각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 기계가 이해할 수 있는 수치적 형태로 변환
 
 ```python
 # 단계 3: 임베딩(Embedding) 객체 생성
@@ -89,6 +90,8 @@ embeddings = OpenAIEmbeddings()
 vectorstore = FAISS.from_documents(
     documents=all_split_documents, embedding=embeddings
 )
+
+# 예시 = [0.02678847312927246, 0.03230374678969383, -0.02981565333902836, ...]
 ```
 
 ### 4. 검색기(Retriever) 생성
