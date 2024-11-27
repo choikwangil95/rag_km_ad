@@ -82,7 +82,7 @@ split_documents = text_splitter.split_documents([document])
 ```python
 # 단계 3: 임베딩(Embedding) 객체 생성
 
-embeddings = OpenAIEmbeddings()
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 ```
 ```python
 # 단계 4: DB 생성(Create DB) 및 저장
@@ -91,8 +91,12 @@ vectorstore = FAISS.from_documents(
     documents=all_split_documents, embedding=embeddings
 )
 
-# 예시 = [0.02678847312927246, 0.03230374678969383, -0.02981565333902836, ...]
+# document_chunked_1 = [0.02678847312927246, 0.03230374678969383, -0.02981565333902836, ...]
+# document_chunked_2 = [-0.020303381606936455, 0.015657879412174225, -0.059232909232378006, ...]
+# document_chunked_3 = [-0.005731410812586546, 0.023385098204016685, -0.059375762939453125, ...]
+#...
 ```
+- embedding 모델에 따라 벡터 차원이 다르고 성능 및 효율이 다름
 
 ### 4. 검색기(Retriever) 생성
 
@@ -108,6 +112,7 @@ retriever = vectorstore.as_retriever(
 
 - k: 리턴할 검색 문서 수
 - fetch_k: 검색 문서 후보 수
+- 검색 알고리즘 선택에 따라 성능 및 효율이 다름
 
 ![image](https://github.com/user-attachments/assets/16ff85c3-8abe-4880-ae6b-4ff34540c739)
 
