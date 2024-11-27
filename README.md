@@ -50,18 +50,20 @@ Retrieval-Augmented Generation(RAG)는 기존의 언어 모델의 한계를 넘�
 # 단계 1: 문서 로드
 
 # 텍스트 로더 생성
+file_path = "src/assets/txt/AD_INFO.txt"
 loader = TextLoader(file_path)
 
 # 문서 로드
 document = loader.load()
 ```
-- 문서 확장자에 따라 토큰수 및 성능 달라짐 (pdf, image, txt, ...)
+
 ### 2. 텍스트 분할 (Text Splitter)
 
 로드된 문서를 처리 가능한 작은 단위로 분할합니다. 큰 책을 챕터별로 나누는 것과 유사합니다.
 
 ```python
 # 단계 2: 문서 분할
+
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=2000, chunk_overlap=100
 )
@@ -69,7 +71,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 split_documents = text_splitter.split_documents([document])
 ```
 
-- chunk-size: 문서 분할 토큰 수
+- chunk-size: 문서 분할 문자 수
 - chunk-overlap: 분할된 문서 교집합 영역
 
 ### 3. 임베딩 (Embedding), 벡터스토어(Vector Store) 저장
@@ -77,11 +79,13 @@ split_documents = text_splitter.split_documents([document])
 각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 문서의 의미를 수치화합니다.
 
 ```python
-# 단계 3: 임베딩(Embedding) 생성
-embeddings = OpenAIEmbeddings()
+# 단계 3: 임베딩(Embedding) 객체 생성
 
+embeddings = OpenAIEmbeddings()
+```
+```python
 # 단계 4: DB 생성(Create DB) 및 저장
-# 벡터스토어를 생성합니다.
+
 vectorstore = FAISS.from_documents(
     documents=all_split_documents, embedding=embeddings
 )
@@ -93,6 +97,7 @@ vectorstore = FAISS.from_documents(
 
 ```python
 # 단계 5: 검색기(Retriever) 생성: 문서에 포함되어 있는 정보를 검색하고 생성합니다.
+
 retriever = vectorstore.as_retriever(
     search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20}
 )
@@ -106,12 +111,11 @@ retriever = vectorstore.as_retriever(
 ### 5. LLM 입력 호출 
 
 ```python
-    # 단계 6: 프롬프트 생성(Create Prompt)
-    # 프롬프트를 생성합니다.
+    # 프롬프트를 생성
     prompt = load_prompt("src/assets/prompts/rag.yaml", encoding="utf-8")
 
-    # 단계 7: 언어모델(LLM) 생성
-    # 모델(LLM) 을 생성합니다.
+
+    # 모델(LLM) 을 생성
     llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
 
     # 단계 8: 체인(Chain) 생성
