@@ -7,17 +7,12 @@ from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_openai import ChatOpenAI
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
+from langchain_community.document_loaders import TextLoader
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain.storage import LocalFileStore
 
 
 def get_retreiver():
-    # # 단계 1: 문서 로드(Load Documents)
-    # loader = PyMuPDFLoader("data/SPRI_AI_Brief_2023년12월호_F.pdf")
-    # docs = loader.load()
-
-    # # 단계 2: 문서 분할(Split Documents)
-    # text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=50)
-    # split_documents = text_splitter.split_documents(docs)
-
     # 단계 1: 여러 파일 로드 및 분할 처리
     # 파일 경로 리스트
     file_paths = [
@@ -30,24 +25,22 @@ def get_retreiver():
         "src/assets/txt/AD_ALL.txt",
         "src/assets/txt/BIZ_CENTER.txt",
     ]
+    # 파일 청크
     all_split_documents = []
 
     # 단계 2: 각 파일에 대해 문서를 로드하고 분할
     for file_path in file_paths:
-        # 단계 1: 문서 로드
-        # loader = PyMuPDFLoader(file_path)
-        # docs = loader.load()
+        # 텍스트 로더 생성
+        loader = TextLoader(file_path)
 
-        with open(file_path, "r", encoding="utf-8") as file:
-            text = file.read()
-
-            document = Document(page_content=text)
+        # 문서 로드
+        document = loader.load()
 
         # 단계 2: 문서 분할
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=2000, chunk_overlap=100
         )
-        split_documents = text_splitter.split_documents([document])
+        split_documents = text_splitter.split_documents(document)
 
         print(
             f"Total split documents: {len(all_split_documents)}, {len(split_documents)}"
@@ -56,12 +49,23 @@ def get_retreiver():
         all_split_documents.extend(split_documents)
 
     # 단계 3: 임베딩(Embedding) 생성
-    embeddings = OpenAIEmbeddings()
+    # 로컬 파일 저장소 설정
+    store = LocalFileStore("./cache/embeddings")
+
+    # 임베딩 생성
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    # 캐시를 지원하는 임베딩 생성
+    cached_embedder = CacheBackedEmbeddings.from_bytes_store(
+        underlying_embeddings=embeddings,
+        document_embedding_cache=store,
+        namespace=embeddings.model,  # 기본 임베딩과 저장소를 사용하여 캐시 지원 임베딩을 생성
+    )
 
     # 단계 4: DB 생성(Create DB) 및 저장
     # 벡터스토어를 생성합니다.
     vectorstore = FAISS.from_documents(
-        documents=all_split_documents, embedding=embeddings
+        documents=all_split_documents, embedding=cached_embedder
     )
 
     # 단계 5: 검색기(Retriever) 생성
@@ -70,7 +74,9 @@ def get_retreiver():
         search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20}
     )
 
-    # 사용자가 입력한 쿼리의 의미를 다각도로 포착하여 검색 효율성을 높이고, LLM을 활용하여 사용자에게 보다 관련성 높고 정확한 정보를 제공하는 것을 목표
+    # 단계 6: 검색기(Retriever) 고도화
+    # 사용자 입력 쿼리에 대해 다양한 관점에서 여러 쿼리를 자동으로 생성하는 LLM을 활용해 프롬프트 튜닝 과정
+    # 각각의 쿼리에 대해 관련 문서 집합을 검색하고, 모든 쿼리를 아우르는 고유한 문서들의 합집합을 추출해, 잠재적으로 관련된 더 큰 문서 집합을 얻을 수 있게 해줌
     llm = ChatOpenAI(model_name="gpt-4o", temperature=1)
     retriever_from_llm = MultiQueryRetriever.from_llm(retriever, llm=llm)
 
