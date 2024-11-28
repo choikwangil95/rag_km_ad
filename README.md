@@ -37,7 +37,8 @@
 - 카카오모빌리티 광고상품 데이터: [https://www.kakaomobility.com/ads](https://www.kakaomobility.com/ads)
 
 ## 🔍 RAG 프로세스
-Retrieval-Augmented Generation(RAG)는 기존의 언어 모델의 한계를 넘어서 정보 검색과 생성을 통합하는 방법론입니다.   
+Retrieval-Augmented Generation(RAG)는 기존의 언어 모델의 한계를 넘어서 정보 검색과 생성을 통합하는 방법론입니다.
+
 아래의 전처리 각 단계별로 적절히 엔지니어링하여 RAG의 성능 및 효율을 향상시킬 수 있습니다.
 
 ![image](https://github.com/user-attachments/assets/fc43049e-1320-4c31-8792-b538def8cc4d)
@@ -60,6 +61,7 @@ document = loader.load()
 ### 2. 텍스트 분할 (Text Splitter)
 
 LLM 모델에는 각각 입/출력 토큰수 제한이 존재함
+
 따라서, 로드된 문서를 처리 가능한 작은 단위로 분할합니다. 큰 책을 챕터별로 나누는 것과 유사합니다.
 
 ```python
@@ -78,6 +80,8 @@ split_documents = text_splitter.split_documents([document])
 ### 3. 임베딩 (Embedding), 벡터스토어(Vector Store) 저장
 
 각 문서 또는 문서의 일부를 벡터 형태로 변환하여, 기계가 이해할 수 있는 수치적 형태로 변환
+
+임베딩된 벡터들을 데이터베이스에 저장합니다. 이는 요약된 키워드를 색인화하여 나중에 빠르게 찾을 수 있도록 하는 과정입니다.
 
 ```python
 # 단계 3: 임베딩(Embedding) 객체 생성
@@ -100,7 +104,7 @@ vectorstore = FAISS.from_documents(
 
 ### 4. 검색기(Retriever) 생성
 
-임베딩된 벡터들을 데이터베이스에 저장합니다. 이는 요약된 키워드를 색인화하여 나중에 빠르게 찾을 수 있도록 하는 과정입니다.
+저장된 벡터 데이터베이스에서 사용자의 질문과 관련된 문서를 검색기 생성
 
 ```python
 # 단계 5: 검색기(Retriever) 생성: 문서에 포함되어 있는 정보를 검색하고 생성합니다.
