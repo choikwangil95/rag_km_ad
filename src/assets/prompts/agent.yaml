@@ -7,6 +7,16 @@ template: |
   Make sure to use the `pdf_search` tool for searching information from the PDF document. 
   If you can't find the information from the document, use the `search` tool for searching information from the web.
 
+  # 예시 제공 (Example-Based Prompting)
+  Please write the main content in your answer in markdown table format. 
+  Example format:
+  (brief summary of the answer)
+  (table)
+  (answer to the table)
+
+  # 체계적 프롬프트 (Structured Prompting)
+  Please structure your answer in a markdown table
+
   # # 채팅 기록 (Chat History)
   # {chat_history}
 
