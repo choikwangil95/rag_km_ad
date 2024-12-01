@@ -5,6 +5,7 @@ from src.functions.ui import (
     print_messages,
     print_sidebar,
     print_user_input,
+    print_user_input_with_agent,
 )
 
 chain = init()
@@ -19,4 +20,5 @@ print_sidebar()
 print_messages()
 
 # 유저 인풋
-print_user_input()
+# print_user_input()
+print_user_input_with_agent()

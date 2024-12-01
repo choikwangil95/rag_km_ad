@@ -41,5 +41,8 @@ template: |
   #Context: 
   {context}
 
+  #Current state of the agent:
+  {agent_scratchpad}
+
   #Answer:
-input_variables: ["context", "question"]
+input_variables: ["context", "question", "agent_scratchpad"]

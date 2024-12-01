@@ -1,3 +1,6 @@
+from src.functions.agent import get_agent_superviser
+from src.functions.parser import AgentStreamParser
+
 from src.functions.chain import create_chain_rag
 import streamlit as st
 from langchain_core.messages.chat import ChatMessage
@@ -88,6 +91,37 @@ def print_user_input():
             for token in response:
                 ai_answer += token
                 container.markdown(ai_answer)
+
+        # 대화기록을 저장한다.
+        add_message("user", user_input)
+        add_message("assistant", ai_answer)
+
+
+def print_user_input_with_agent():
+    agent_superviser = get_agent_superviser()
+    agent_stream_parser = AgentStreamParser()
+    user_input = st.chat_input("궁금한 내용을 물어보세요!")
+
+    if user_input:
+        # 사용자의 입력
+        st.chat_message("user").write(user_input)
+        # 스트리밍 호출
+        response = agent_superviser.stream(
+            {"input": user_input},
+            # session_id 설정
+            config={"configurable": {"session_id": st.session_state['user_id']}},
+        )
+        with st.chat_message("assistant"):
+            # 빈 공간(컨테이너)을 만들어서, 여기에 토큰을 스트리밍 출력한다.
+            container = st.empty()
+
+            ai_answer = ""
+            for step in response:
+                # print(step, agent_stream_parser.process_agent_steps(step))
+                if agent_stream_parser.process_agent_steps(step) is not None:
+                    ai_answer += agent_stream_parser.process_agent_steps(step)
+                    print('==='*20, ai_answer, '==='*20)
+                    container.markdown(ai_answer)
 
         # 대화기록을 저장한다.
         add_message("user", user_input)

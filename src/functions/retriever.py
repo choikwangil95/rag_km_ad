@@ -38,7 +38,7 @@ def get_retreiver():
 
         # 단계 2: 문서 분할
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=2000, chunk_overlap=100
+            chunk_size=1000, chunk_overlap=100
         )
         split_documents = text_splitter.split_documents(document)
 
@@ -71,7 +71,7 @@ def get_retreiver():
     # 단계 5: 검색기(Retriever) 생성
     # 문서에 포함되어 있는 정보를 검색하고 생성합니다.
     retriever = vectorstore.as_retriever(
-        search_type="mmr", search_kwargs={"k": 5, "fetch_k": 20}
+        search_type="mmr", search_kwargs={"k": 5, "fetch_k": 10}
     )
 
     # 단계 6: 검색기(Retriever) 고도화
